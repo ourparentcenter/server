@@ -75,7 +75,7 @@ abstract class AbstractPrincipalBackend implements BackendInterface {
 	];
 
 	/** @var string */
-	private $roomFeatureQueryParam;
+	public $roomFeatureQueryParam = null;
 
 	/**
 	 * @param IDBConnection $dbConnection
@@ -315,7 +315,15 @@ abstract class AbstractPrincipalBackend implements BackendInterface {
 					break;
 
 				case '{http://nextcloud.com/ns}room-features':
-//					$this->roomFeatureQueryParam = implode('%',explode(',' $value));
+					$rowsByMetadata = $this->searchPrincipalsByMetadataKey('{http://nextcloud.com/ns}room-features', str_replace(',', '%', $value));
+
+					$filteredRows = array_filter($rowsByMetadata, function ($row) use ($usersGroups) {
+						return $this->isAllowedToAccessResource($row, $usersGroups);
+					});
+
+					$results[] = array_map(function ($row): string {
+						return $row['uri'];
+					}, $filteredRows);
 					break;
 
 				default:
@@ -332,23 +340,22 @@ abstract class AbstractPrincipalBackend implements BackendInterface {
 			}
 		}
 
-		if(!empty($this->roomFeatureQueryParams)){
-			$results[] = $this->searchPrincipalsByMetadataKey('{http://nextcloud.com/ns}room-features', $this->roomFeatureQueryParams);
-		}
 		// results is an array of arrays, so this is not the first search result
 		// but the results of the first searchProperty
 		// Why? This will usually result in a return here and won't do the anyof or allof matching
-/*		if (count($results) === 1) {
+		// i.e. if there are more than one row on the results.
+		if (count($results) === 1) {
 			return $results[0];
-		}*/
+		}
 
+		//
 		switch ($test) {
 			case 'anyof':
 				return array_values(array_unique(array_merge(...$results)));
 
 			case 'allof':
 			default:
-				return array_values(array_intersect(...$results));
+				return array_values(array_merge(...$results));
 		}
 	}
 
@@ -378,7 +385,7 @@ abstract class AbstractPrincipalBackend implements BackendInterface {
 		try {
 			$stmt = $query->executeQuery();
 		} catch (Exception $e){
-			//log and return empty?
+			$this->logger->error($e->getMessage());
 		}
 
 		$rows = [];
