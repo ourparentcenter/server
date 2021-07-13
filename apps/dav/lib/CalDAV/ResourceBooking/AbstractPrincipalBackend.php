@@ -316,7 +316,6 @@ abstract class AbstractPrincipalBackend implements BackendInterface {
 
 				case '{http://nextcloud.com/ns}room-features':
 					$rowsByMetadata = $this->searchPrincipalsByMetadataKey('{http://nextcloud.com/ns}room-features', str_replace(',', '%', $value));
-
 					$filteredRows = array_filter($rowsByMetadata, function ($row) use ($usersGroups) {
 						return $this->isAllowedToAccessResource($row, $usersGroups);
 					});
@@ -342,19 +341,18 @@ abstract class AbstractPrincipalBackend implements BackendInterface {
 
 		// results is an array of arrays, so this is not the first search result
 		// but the results of the first searchProperty
-		// Why? This will usually result in a return here and won't do the anyof or allof matching
-		// i.e. if there are more than one row on the results.
 		if (count($results) === 1) {
 			return $results[0];
 		}
 
-		//
 		switch ($test) {
 			case 'anyof':
 				return array_values(array_unique(array_merge(...$results)));
 
 			case 'allof':
 			default:
+				// this is kind of BS but array_intersect was removing all values no matter if they were correct or not.
+				// @TODO find a way to determine which values are correct that doesn't kill the room/resource query results.
 				return array_values(array_merge(...$results));
 		}
 	}
