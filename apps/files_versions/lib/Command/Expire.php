@@ -27,7 +27,8 @@ use OC\Command\FileAccess;
 use OCA\Files_Versions\Storage;
 use OCP\Command\ICommand;
 use OCP\Files\StorageNotAvailableException;
-use OCP\ILogger;
+use OCP\IUserManager;
+use Psr\Log\LoggerInterface;
 
 class Expire implements ICommand {
 	use FileAccess;
@@ -42,19 +43,21 @@ class Expire implements ICommand {
 	 */
 	private $user;
 
-	/**
-	 * @param string $user
-	 * @param string $fileName
-	 */
-	public function __construct($user, $fileName) {
+	/** @var IUserManager */
+	private $userManager;
+
+	/** @var LoggerInterface */
+	private $logger;
+
+	public function __construct(string $user, string $fileName, IUserManager $userManager, LoggerInterface $logger) {
 		$this->user = $user;
 		$this->fileName = $fileName;
+		$this->userManager = $userManager;
+		$this->logger = $logger;
 	}
 
-
 	public function handle() {
-		$userManager = \OC::$server->getUserManager();
-		if (!$userManager->userExists($this->user)) {
+		if (!$this->userManager->userExists($this->user)) {
 			// User has been deleted already
 			return;
 		}
@@ -65,11 +68,8 @@ class Expire implements ICommand {
 			// In case of external storage and session credentials, the expiration
 			// fails because the command does not have those credentials
 
-			/** @var ILogger $logger */
-			$logger = \OC::$server->get(ILogger::class);
-
-			$logger->logException($e, [
-				'level' => ILogger::WARN,
+			$this->logger->warning($e->getMessage(), [
+				'exception' => $e,
 				'uid' => $this->user,
 				'fileName' => $this->fileName,
 			]);
