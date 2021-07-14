@@ -122,9 +122,10 @@ class Expiration {
 
 	/**
 	 * Get maximal retention obligation as a timestamp
-	 * @return int|bool
+	 *
+	 * @return int|false
 	 */
-	public function getMaxAgeAsTimestamp(): int|bool {
+	public function getMaxAgeAsTimestamp() {
 		$maxAge = false;
 		if ($this->isEnabled() && $this->maxAge !== self::NO_OBLIGATION) {
 			$time = $this->timeFactory->getTime();

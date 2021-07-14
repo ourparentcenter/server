@@ -701,8 +701,10 @@ class Storage {
 		// let the admin disable auto expire
 		$expiration = self::getExpiration();
 		if ($expiration->isEnabled()) {
-			$command = new Expire($uid, $fileName, \OC::$server->get(IUserManager::class), \OC::$server->get(LoggerInterface::class));
-			\OC::$server->get(IBus::class)->push($command);
+			$command = new Expire($uid, $fileName);
+			/** @var IBus $bus */
+			$bus = \OC::$server->get(IBus::class);
+			$bus->push($command);
 		}
 	}
 
