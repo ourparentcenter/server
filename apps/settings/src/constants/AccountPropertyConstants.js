@@ -36,12 +36,36 @@ export const ACCOUNT_PROPERTY_ENUM = Object.freeze({
 	EMAIL_COLLECTION: 'additional_mail',
 })
 
+/** Enum of account properties to human readable text */
+export const ACCOUNT_PROPERTY_READABLE_ENUM = Object.freeze({
+	AVATAR: 'avatar',
+	DISPLAYNAME: 'full name',
+	PHONE: 'phone',
+	EMAIL: 'email',
+	WEBSITE: 'website',
+	ADDRESS: 'address',
+	TWITTER: 'twitter',
+	EMAIL_COLLECTION: 'additional email',
+})
+
 /** Enum of scopes */
 export const SCOPE_ENUM = Object.freeze({
 	PRIVATE: 'v2-private',
 	LOCAL: 'v2-local',
 	FEDERATED: 'v2-federated',
 	PUBLISHED: 'v2-published',
+})
+
+/** Enum of readable account properties to unsupported scopes */
+export const PROPERTY_READABLE_UNSUPPORTED_SCOPES_ENUM = Object.freeze({
+	[ACCOUNT_PROPERTY_READABLE_ENUM.AVATAR]: [],
+	[ACCOUNT_PROPERTY_READABLE_ENUM.DISPLAYNAME]: [SCOPE_ENUM.PRIVATE],
+	[ACCOUNT_PROPERTY_READABLE_ENUM.PHONE]: [],
+	[ACCOUNT_PROPERTY_READABLE_ENUM.EMAIL]: [SCOPE_ENUM.PRIVATE],
+	[ACCOUNT_PROPERTY_READABLE_ENUM.WEBSITE]: [],
+	[ACCOUNT_PROPERTY_READABLE_ENUM.ADDRESS]: [],
+	[ACCOUNT_PROPERTY_READABLE_ENUM.TWITTER]: [],
+	[ACCOUNT_PROPERTY_READABLE_ENUM.EMAIL_COLLECTION]: [SCOPE_ENUM.PRIVATE],
 })
 
 /** Scope suffix */

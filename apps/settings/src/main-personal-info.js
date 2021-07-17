@@ -21,18 +21,29 @@
  */
 
 import Vue from 'vue'
+import { getRequestToken } from '@nextcloud/auth'
+import { translate as t } from '@nextcloud/l10n'
+import '@nextcloud/dialogs/styles/toast.scss'
 
 import logger from './logger'
 
 import EmailSection from './components/PersonalInfo/EmailSection/EmailSection'
+import DisplayNameSection from './components/PersonalInfo/DisplayNameSection/DisplayNameSection'
 
 // eslint-disable-next-line camelcase
-__webpack_nonce__ = btoa(OC.requestToken)
+__webpack_nonce__ = btoa(getRequestToken())
 
-Vue.prototype.t = t
-Vue.prototype.logger = logger
-
-const View = Vue.extend(EmailSection)
-export default new View({
-	el: '#vue-emailsection',
+Vue.mixin({
+	props: {
+		logger,
+	},
+	methods: {
+		t,
+	},
 })
+
+const EmailView = Vue.extend(EmailSection)
+const DisplayNameView = Vue.extend(DisplayNameSection)
+
+new EmailView().$mount('#vue-emailsection')
+new DisplayNameView().$mount('#vue-displaynamesection')

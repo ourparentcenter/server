@@ -99,6 +99,8 @@ script('settings', [
 
 	<div class="personal-settings-container">
 		<div class="personal-settings-setting-box">
+			<div id="vue-displaynamesection" class="section"></div>
+<!--
 			<form id="displaynameform" class="section">
 				<h3>
 					<label for="displayname"><?php p($l->t('Full name')); ?></label>
@@ -125,6 +127,7 @@ script('settings', [
 				<span class="icon-error hidden" ></span>
 				<input type="hidden" id="displaynamescope" value="<?php p($_['displayNameScope']) ?>">
 			</form>
+ -->
 		</div>
 		<div class="personal-settings-setting-box">
 			<div id="vue-emailsection" class="section"></div>

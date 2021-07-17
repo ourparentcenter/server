@@ -40,12 +40,16 @@
 					<span v-else-if="showErrorIcon" class="icon-error" />
 				</transition>
 
-				<FederationControl v-if="!primary"
-					class="federation-control"
-					:disabled="federationDisabled"
-					:email="email"
-					:scope.sync="localScope"
-					@update:scope="onScopeChange" />
+				<template v-if="!primary">
+					<FederationControl
+						:account-property="accountProperty"
+						:additional="true"
+						:additional-value="email"
+						:disabled="federationDisabled"
+						:handle-scope-change="handleAdditionalScopeChange"
+						:scope.sync="localScope"
+						@update:scope="onScopeChange" />
+				</template>
 
 				<Actions
 					class="actions-email"
@@ -75,8 +79,10 @@ import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
 import { showError } from '@nextcloud/dialogs'
 import debounce from 'debounce'
 
-import FederationControl from './FederationControl'
-import { savePrimaryEmail, saveAdditionalEmail, updateAdditionalEmail, removeAdditionalEmail } from '../../../service/PersonalInfoService'
+import FederationControl from '../shared/FederationControl'
+
+import { ACCOUNT_PROPERTY_READABLE_ENUM } from '../../../constants/AccountPropertyConstants'
+import { savePrimaryEmail, saveAdditionalEmail, saveAdditionalEmailScope, updateAdditionalEmail, removeAdditionalEmail } from '../../../service/PersonalInfo/EmailService'
 
 export default {
 	name: 'Email',
@@ -108,7 +114,9 @@ export default {
 
 	data() {
 		return {
+			accountProperty: ACCOUNT_PROPERTY_READABLE_ENUM.EMAIL,
 			initialEmail: this.email,
+			handleAdditionalScopeChange: saveAdditionalEmailScope,
 			localScope: this.scope,
 			showCheckmarkIcon: false,
 			showErrorIcon: false,
@@ -277,17 +285,6 @@ export default {
 				}
 
 				&::v-deep button {
-					height: 30px !important;
-					min-height: 30px !important;
-					width: 30px !important;
-					min-width: 30px !important;
-				}
-			}
-
-			.federation-control {
-				&::v-deep button {
-					// TODO remove this hack
-					padding-bottom: 7px;
 					height: 30px !important;
 					min-height: 30px !important;
 					width: 30px !important;

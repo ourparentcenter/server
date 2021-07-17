@@ -25,12 +25,17 @@
 		class="section"
 		@submit.stop.prevent="() => {}">
 		<HeaderBar
-			:can-edit-emails="isDisplayNameChangeSupported"
+			:title="title"
+			label-for="email"
+			:aria-label="t('settings', 'Change privacy level of email')"
+			:handle-scope-change="handleScopeChange"
+			:is-editable="displayNameChangeSupported"
+			:is-multi-value-supported="true"
 			:is-valid-form="isValidForm"
 			:scope.sync="primaryEmail.scope"
-			@addAdditionalEmail="onAddAdditionalEmail" />
+			@addAdditional="onAddAdditionalEmail" />
 
-		<template v-if="isDisplayNameChangeSupported">
+		<template v-if="displayNameChangeSupported">
 			<Email
 				:primary="true"
 				:scope.sync="primaryEmail.scope"
@@ -54,14 +59,14 @@
 <script>
 import { loadState } from '@nextcloud/initial-state'
 import { showError } from '@nextcloud/dialogs'
-import '@nextcloud/dialogs/styles/toast.scss'
 
-import HeaderBar from './HeaderBar'
 import Email from './Email'
-import { savePrimaryEmail, removeAdditionalEmail } from '../../../service/PersonalInfoService'
-import { DEFAULT_ADDITIONAL_EMAIL_SCOPE } from '../../../constants/AccountPropertyConstants'
+import HeaderBar from '../shared/HeaderBar'
 
-const { additionalEmails, primaryEmail } = loadState('settings', 'emails', {})
+import { savePrimaryEmail, removeAdditionalEmail, savePrimaryEmailScope } from '../../../service/PersonalInfo/EmailService'
+import { ACCOUNT_PROPERTY_READABLE_ENUM, DEFAULT_ADDITIONAL_EMAIL_SCOPE } from '../../../constants/AccountPropertyConstants'
+
+const { emails: { additionalEmails, primaryEmail } } = loadState('settings', 'personalInfoParameters', {})
 const { displayNameChangeSupported } = loadState('settings', 'accountParameters', {})
 
 export default {
@@ -74,17 +79,16 @@ export default {
 
 	data() {
 		return {
+			title: `${ACCOUNT_PROPERTY_READABLE_ENUM.EMAIL[0].toUpperCase()}${ACCOUNT_PROPERTY_READABLE_ENUM.EMAIL.slice(1)}`,
 			additionalEmails,
+			displayNameChangeSupported,
 			primaryEmail,
+			handleScopeChange: savePrimaryEmailScope,
 			isValidForm: true,
 		}
 	},
 
 	computed: {
-		isDisplayNameChangeSupported() {
-			return displayNameChangeSupported
-		},
-
 		primaryEmailValue: {
 			get() {
 				return this.primaryEmail.value

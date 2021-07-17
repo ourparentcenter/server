@@ -21,20 +21,20 @@
 
 <template>
 	<h3>
-		<label for="email">
-			{{ t('settings', 'Email') }}
+		<label :for="labelFor">
+			{{ t('settings', title) }}
 		</label>
 
-		<FederationControl
-			class="federation-control"
-			:primary="true"
+		<FederationControl class="federation-control"
+			:account-property="accountProperty"
+			:handle-scope-change="handleScopeChange"
 			:scope.sync="localScope"
 			@update:scope="onScopeChange" />
 
-		<AddButton v-if="canEditEmails"
+		<AddButton v-if="isEditable && isMultiValueSupported"
 			class="add-button"
 			:disabled="!isValidForm"
-			@click.stop.prevent="addAdditionalEmail" />
+			@click.stop.prevent="onAddAdditional" />
 	</h3>
 </template>
 
@@ -51,9 +51,21 @@ export default {
 	},
 
 	props: {
-		canEditEmails: {
+		title: {
+			type: String,
+			required: true,
+		},
+		labelFor: {
+			type: String,
+			required: true,
+		},
+		isEditable: {
 			type: Boolean,
-			default: true,
+			required: true,
+		},
+		isMultiValueSupported: {
+			type: Boolean,
+			default: false,
 		},
 		isValidForm: {
 			type: Boolean,
@@ -63,17 +75,22 @@ export default {
 			type: String,
 			required: true,
 		},
+		handleScopeChange: {
+			type: Function,
+			required: true,
+		},
 	},
 
 	data() {
 		return {
+			accountProperty: this.title.toLowerCase(),
 			localScope: this.scope,
 		}
 	},
 
 	methods: {
-		addAdditionalEmail() {
-			this.$emit('addAdditionalEmail')
+		onAddAdditional() {
+			this.$emit('addAdditional')
 		},
 
 		onScopeChange(scope) {
